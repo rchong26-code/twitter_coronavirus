@@ -22,3 +22,10 @@ Because the dataset is too large for traditional analysis, I implemented a paral
 
 ## Korean Hashtag Top Country
 ![Korean Country Analysis](plots/korean_country.png)
+
+
+## Hashtag Usage Over Time (2020)
+
+- The blue line represents the English hashtag (#coronavirus), while the orange line represents the Korean hashtag (#코로나바이러스).
+
+![Hashtag Timeline](plots/hashtag_timeseries.png)
