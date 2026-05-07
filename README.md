@@ -11,14 +11,14 @@ Because the dataset is too large for traditional analysis, I implemented a paral
 
 ## Results
 
-## Coronavirus Language Analysis
+## Coronavirus Top Languages With English #coronavirus
 ![Coronavirus Language Analysis](plots/coronavirus_lang.png)
 
-## Coronavirus Country Analysis
+## Coronavirus Top Countries With English #coronavirus 
 ![Coronavirus Country Analysis](plots/coronavirus_country.png)
 
-## Korean Hashtag Language Analysis
+## Korean Hashtag Top Language 
 ![Korean Language Analysis](plots/korean_lang.png)
 
-## Korean Hashtag Country Analysis
+## Korean Hashtag Top Country
 ![Korean Country Analysis](plots/korean_country.png)
