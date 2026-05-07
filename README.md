@@ -1,22 +1,24 @@
-# Twitter Coronavirus MapReduce Analysis
+# Coronavirus Twitter MapReduce Analysis
 
-This project analyzes geotagged Twitter posts from 2020 using a MapReduce pipeline in Python. The project tracks hashtag usage across multiple languages and countries to monitor global discussion surrounding COVID-19.
+## Project Overview
+This project analyzes ~1.1 billion geotagged tweets from 2020 to study how discussion of COVID-19 spread across languages, countries, and time.
 
-## Technologies
-- Python
-- MapReduce
-- JSON
-- matplotlib
-- Linux shell scripting
+Because the dataset is too large for traditional analysis, I implemented a parallel MapReduce pipeline in Python + Bash on a multi-processor server.
+
+- **Mapper:** scans each day of tweets and counts hashtag usage by **language** and **country**
+- **Reducer:** aggregates all daily outputs into global totals
+- **Visualization:** generates plots for the top 10 languages/countries and a time-series over 2020
+
+## Results
 
 ## Coronavirus Language Analysis
-![Coronavirus Language Analysis](plots/all.lang__%23coronavirus__count.png)
+![Coronavirus Language Analysis](plots/coronavirus_lang.png)
 
 ## Coronavirus Country Analysis
-![Coronavirus Country Analysis](plots/all.country__%23coronavirus__count.png)
+![Coronavirus Country Analysis](plots/coronavirus_country.png)
 
 ## Korean Hashtag Language Analysis
-![Korean Language Analysis](plots/all.lang__%23%EC%BD%94%EB%A1%9C%EB%82%98%EB%B0%94%EC%9D%B4%EB%9F%AC%EC%8A%A4__count.png)
+![Korean Language Analysis](plots/korean_lang.png)
 
 ## Korean Hashtag Country Analysis
-![Korean Country Analysis](plots/all.country__%23%EC%BD%94%EB%A1%9C%EB%82%98%EB%B0%94%EC%9D%B4%EB%9F%AC%EC%8A%A4__count.png)
+![Korean Country Analysis](plots/korean_country.png)
