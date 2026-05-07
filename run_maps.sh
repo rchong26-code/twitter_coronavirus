@@ -1,20 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
 
-# dataset location
-input_folder="/data/Twitter dataset"
+OUTDIR="$(pwd)/outputs"
+mkdir -p "$OUTDIR"
+MAX_JOBS=8
 
-# where outputs go
-output_folder="./outputs"
+for file in "/data/Twitter dataset"/geoTwitter20-*.zip; do
+  base="$(basename "$file")"
+  out="$OUTDIR/$base.lang"
+  log="$OUTDIR/$base.log"
 
-# loop over 2020 tweets
-for file in "$input_folder"/geoTwitter20-*.zip
-do
-    echo "Processing $file"
+  if [[ -s "$out" ]]; then
+    echo "SKIP $base"
+    continue
+  fi
 
-    nohup python3 src/map.py \
-        --input_path "$file" \
-        --output_folder "$output_folder" &
+  while (( $(pgrep -fc "python3 src/map.py") >= MAX_JOBS )); do
+    sleep 2
+  done
+
+  echo "START $base"
+  nohup python3 src/map.py --input_path "$file" --output_folder "$OUTDIR" > "$log" 2>&1 &
 done
 
-echo "All mapper jobs started"
-
+echo "All jobs launched (throttled)."
