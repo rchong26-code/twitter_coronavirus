@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
 
-# command line args
 import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument('--input_path',required=True)
-parser.add_argument('--output_folder',default='outputs')
-args = parser.parse_args()
-
-# imports
 import os
 import zipfile
 import datetime
 import json
-from collections import Counter,defaultdict
+from collections import Counter, defaultdict
 
-# load keywords
+parser = argparse.ArgumentParser()
+parser.add_argument('--input_path', required=True)
+parser.add_argument('--output_folder', default='outputs')
+args = parser.parse_args()
+
 hashtags = [
     '#코로나바이러스',  # korean
     '#コロナウイルス',  # japanese
@@ -35,65 +32,60 @@ hashtags = [
     '#doctor',
 ]
 
-# initialize counters
-counter_lang = defaultdict(lambda: Counter())
-counter_country = defaultdict(lambda: Counter())
+hashtags_lower = [h.lower() for h in hashtags]
 
-# open the zipfile
+counter_lang = defaultdict(Counter)
+counter_country = defaultdict(Counter)
+
+def get_lang(tweet):
+    lang = tweet.get('lang')
+    return lang if lang else 'und'
+
+def get_country(tweet):
+    place = tweet.get('place')
+    if isinstance(place, dict):
+        cc = place.get('country_code') or place.get('country')
+        if cc:
+            return cc
+    return '??'
+
 with zipfile.ZipFile(args.input_path) as archive:
+    for filename in archive.namelist():
+        print(datetime.datetime.now(), args.input_path, filename)
 
-    # loop over every file within the zip file
-    for i,filename in enumerate(archive.namelist()):
-        print(datetime.datetime.now(),args.input_path,filename)
-
-        # open the inner file
         with archive.open(filename) as f:
+            for raw_line in f:
+                try:
+                    tweet = json.loads(raw_line)
+                except Exception:
+                    continue
 
-            # loop over each line in the inner file
-            for line in f:
+                text = tweet.get('text', '')
+                if not isinstance(text, str):
+                    continue
+                text_lower = text.lower()
 
-                # load the tweet as a python dictionary
-                tweet = json.loads(line)
+                lang = get_lang(tweet)
+                country = get_country(tweet)
 
-                # convert text to lower case
-                text = tweet['text'].lower()
+                counter_lang['_all'][lang] += 1
+                counter_country['_all'][country] += 1
 
-                # get language and country
-                lang = tweet.get('lang')
-                country = None
-                if tweet.get('place') and tweet['place'].get('country_code'):
-                    country = tweet['place']['country_code']
+                for h, hlow in zip(hashtags, hashtags_lower):
+                    if hlow in text_lower:
+                        counter_lang[h][lang] += 1
+                        counter_country[h][country] += 1
 
-                # search hashtags
-                for hashtag in hashtags:
-                    if hashtag in text:
-                        if lang:
-                            counter_lang[hashtag][lang] += 1
-                        if country:
-                            counter_country[hashtag][country] += 1
+os.makedirs(args.output_folder, exist_ok=True)
+output_base = os.path.join(args.output_folder, os.path.basename(args.input_path))
 
-                if lang:
-                    counter_lang['_all'][lang] += 1
-                if country:
-                    counter_country['_all'][country] += 1
+out_lang = output_base + '.lang'
+print('saving', out_lang)
+with open(out_lang, 'w') as f:
+    f.write(json.dumps({k: dict(v) for k, v in counter_lang.items()}))
 
+out_country = output_base + '.country'
+print('saving', out_country)
+with open(out_country, 'w') as f:
+    f.write(json.dumps({k: dict(v) for k, v in counter_country.items()}))
 
-# open the outputfile
-try:
-    os.makedirs(args.output_folder)
-except FileExistsError:
-    pass
-
-output_path_base = os.path.join(args.output_folder,os.path.basename(args.input_path))
-
-# save language results
-output_path_lang = output_path_base+'.lang'
-print('saving',output_path_lang)
-with open(output_path_lang,'w') as f:
-    f.write(json.dumps(counter_lang))
-
-# save country results
-output_path_country = output_path_base+'.country'
-print('saving',output_path_country)
-with open(output_path_country,'w') as f:
-    f.write(json.dumps(counter_country))

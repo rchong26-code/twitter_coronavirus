@@ -1,27 +1,25 @@
-#!/usr/bin/env bash
-set -euo pipefail
-cd "$(dirname "$0")"
+#!/usr/bin/env python3
 
-OUTDIR="$(pwd)/outputs"
-mkdir -p "$OUTDIR"
-MAX_JOBS=8
+# command line args
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--input_paths',nargs='+',required=True)
+parser.add_argument('--output_path',required=True)
+args = parser.parse_args()
 
-for file in "/data/Twitter dataset"/geoTwitter20-*.zip; do
-  base="$(basename "$file")"
-  out="$OUTDIR/$base.lang"
-  log="$OUTDIR/$base.log"
+# imports
+import os
+import json
+from collections import Counter,defaultdict
 
-  if [[ -s "$out" ]]; then
-    echo "SKIP $base"
-    continue
-  fi
+# load each of the input paths
+total = defaultdict(lambda: Counter())
+for path in args.input_paths:
+    with open(path) as f:
+        tmp = json.load(f)
+        for k in tmp:
+            total[k] += tmp[k]
 
-  while (( $(pgrep -fc "python3 src/map.py") >= MAX_JOBS )); do
-    sleep 2
-  done
-
-  echo "START $base"
-  nohup python3 src/map.py --input_path "$file" --output_folder "$OUTDIR" > "$log" 2>&1 &
-done
-
-echo "All jobs launched (throttled)."
+# write the output path
+with open(args.output_path,'w') as f:
+    f.write(json.dumps(total))
