@@ -1,13 +1,32 @@
 # Coronavirus Twitter MapReduce Analysis
 
 ## Project Overview
-This project analyzes ~1.1 billion geotagged tweets from 2020 to study how discussion of COVID-19 spread across languages, countries, and time.
 
-Because the dataset is too large for traditional analysis, I implemented a parallel MapReduce pipeline in Python + Bash on a multi-processor server.
+This project analyzes about 1.1 billion geotagged tweets collected throughout 2020 to examine how COVID-19 discussions spread across countries, languages, and time. Using Python, Bash, and the MapReduce programming, I built a processing pipeline capable of handling large-scale social media data on a multi-processor server.
 
-- **Mapper:** scans each day of tweets and counts hashtag usage by **language** and **country**
-- **Reducer:** aggregates all daily outputs into global totals
-- **Visualization:** generates plots for the top 10 languages/countries and a time-series over 2020
+The project tracks hashtag usage related to the coronavirus and transforms raw tweet data into visual insights through country-level, language-level, and temporal analysis. The workflow consists of a mapper that processes daily tweet files, reducers that aggregate results into global totals, and visualization scripts that generate comparative bar charts and yearly trend plots.
+
+---
+
+## Takeaways
+
+Through this project, I gained experience working with extremely large scale datasets, building a scalable data processing pipeline, and figuring out how to work with multilingual social media text and geographic metadata to analyze hashtag trends across countries and languages. Additionally, I used JSON to organize structured output data and created visualizations with Matplotlib to better communicate temporal and geographic patterns within the dataset.
+
+---
+
+## Pipeline Components
+
+### 1. Mapper (`map.py`)
+Processes daily tweet files and counts hashtag usage by both language and country, generating intermediate `.lang` and `.country` files for each day of 2020.
+
+### 2. Reducer (`reduce.py`)
+Combines all intermediate language and country files into aggregated global totals.
+
+### 3. Visualization (`visualize.py`)
+Creates bar charts displaying the top 10 countries or languages associated with a selected hashtag.
+
+### 4. Trend Analysis (`alternative_reduce.py`)
+Produces a time-series visualization showing how hashtag usage changed throughout 2020.
 
 ## Results
 
